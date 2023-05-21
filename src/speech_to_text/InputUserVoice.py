@@ -1,9 +1,9 @@
 import random
 import string
+import sys
+import wave
 
 import openai
-import wave
-import sys
 import pyaudio
 
 
@@ -29,9 +29,16 @@ class InputUserVoice:
         self.p = p
 
     def generate_random_audio_file(self, N=7):
-        new_file = 'input-wav/'.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N)).join('.wav')
+        print('generating new file...')
+        new_file = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
+        new_file = 'src/input_wav/' + new_file
+        new_file = new_file + '.wav'
+        print('file name: {0}'.format(new_file))
+        open(new_file, 'w') # create new file
         self.set_path_to_audio_file(new_file)
+        print('DONE: generated new file...')
         return new_file
+
     def record_audio(self, length_in_seconds=5):
         self.generate_random_audio_file()
         self.RECORD_SECONDS = length_in_seconds
@@ -49,27 +56,32 @@ class InputUserVoice:
 
             stream.close()
             self.p.terminate()
+
     def get_output_text(self):
         if self.get_audio_file() is None:
-            self.open_audio_file()
+            self.open_audio_file(self.path_to_audio_file)
         transcript = openai.Audio.transcribe("whisper-1", self.get_audio_file())
-        self.set_transcript(transcript)
-        return transcript
+        transcript_string = transcript['text']
+        self.set_transcript(transcript_string)
+        return transcript_string
 
     def get_transcript(self):
         return self.transcript
+
     def set_transcript(self, transcript):
         self.transcript = transcript
 
     def set_audio_file(self, audio_file):
         self.audio_file = audio_file
+
     def get_audio_file(self):
         return self.audio_file
 
     def open_audio_file(self, path):
-        self.set_audio_file( open(self.get_path_to_audio_file(), 'rb') )
+        self.set_audio_file(open(self.get_path_to_audio_file(), 'rb'))
+
     def set_path_to_audio_file(self, file):
         self.path_to_audio_file = file
+
     def get_path_to_audio_file(self):
         return self.path_to_audio_file
-
