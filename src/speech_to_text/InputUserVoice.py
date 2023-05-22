@@ -1,3 +1,4 @@
+import os
 import random
 import string
 import sys
@@ -58,11 +59,13 @@ class InputUserVoice:
             print('Done')
 
             stream.close()
-            self.p.terminate()
 
     def stop_recording(self):
         print('stopped recording!')
         self.is_stopped = 1
+
+    def terminate_audio_input(self):
+        self.p.terminate()
 
     def get_output_text(self):
         if self.get_audio_file() is None:
@@ -72,6 +75,9 @@ class InputUserVoice:
         transcript_string = transcript['text']
         self.set_transcript(transcript_string)
         return transcript_string
+
+    def remove_input_sound_file(self):
+        os.remove(self.path_to_audio_file)
 
     def get_transcript(self):
         return self.transcript
