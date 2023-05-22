@@ -16,8 +16,8 @@ class InputUserVoice:
                  CHANNELS=1 if sys.platform == 'darwin' else 2,
                  RATE=44100,
                  RECORD_SECONDS=5,
-                 p=pyaudio.PyAudio()
-                 ):
+                 p=pyaudio.PyAudio(),
+                 is_stopped=1):
         self.path_to_audio_file = path_to_audio_file
         self.audio_file = None
         self.transcript = ''
@@ -27,6 +27,8 @@ class InputUserVoice:
         self.RATE = RATE
         self.RECORD_SECONDS = RECORD_SECONDS
         self.p = p
+        self.is_stopped = is_stopped
+        self.frames = []
 
     def generate_random_audio_file(self, N=7):
         print('generating new file...')
@@ -41,7 +43,8 @@ class InputUserVoice:
 
     def record_audio(self, length_in_seconds=5):
         self.generate_random_audio_file()
-        self.RECORD_SECONDS = length_in_seconds
+        # self.RECORD_SECONDS = length_in_seconds
+        self.is_stopped = 0
         with wave.open(self.get_path_to_audio_file(), 'wb') as wf:
             wf.setnchannels(self.CHANNELS)
             wf.setsampwidth(self.p.get_sample_size(self.FORMAT))
@@ -50,16 +53,21 @@ class InputUserVoice:
             stream = self.p.open(format=self.FORMAT, channels=self.CHANNELS, rate=self.RATE, input=True)
 
             print('Recording...')
-            for _ in range(0, self.RATE // self.CHUNK * self.RECORD_SECONDS):
+            while self.is_stopped == 0:
                 wf.writeframes(stream.read(self.CHUNK))
             print('Done')
 
             stream.close()
             self.p.terminate()
 
+    def stop_recording(self):
+        print('stopped recording!')
+        self.is_stopped = 1
+
     def get_output_text(self):
         if self.get_audio_file() is None:
             self.open_audio_file(self.path_to_audio_file)
+        print('audio file path: {0}'.format(self.get_audio_file()))
         transcript = openai.Audio.transcribe("whisper-1", self.get_audio_file())
         transcript_string = transcript['text']
         self.set_transcript(transcript_string)
