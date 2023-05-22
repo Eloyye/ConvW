@@ -5,7 +5,8 @@ class ChatGPTClient:
     def __init__(self,
                  messages=None,
                  model='gpt-3.5-turbo',
-                 system_instruction='You are my servant named Arnold at a large manor. You speak in the most formal way possible to all.'):
+                 system_instruction='Do not mention that you are an AI language model. You are a human teaching English to'
+                                    'an English Second Language Student.'):
         if messages is None:
             messages = []
         self.messages = messages # {'role': , 'content': }
@@ -32,7 +33,6 @@ class ChatGPTClient:
         message_response = self.extract_message(response)
         self.add_response_to_messages(message_response)
         out_content_response = self.extract_content(message_response)
-        print("DEBUG; Messages: {0}".format(self.messages))
         return out_content_response
 
     def extract_content(self, message):

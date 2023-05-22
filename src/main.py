@@ -19,14 +19,15 @@ if __name__ == '__main__':
         inp = input('Type: ')
         user_input = iuv.InputUserVoice()
         if inp == 'r':
-            os.system('clear')
             record_thread = threading.Thread(target=user_input.record_audio, args=[MAX_SECONDS])
             record_thread.start() #run thread
             inp2 = input('Enter return to stop')
             user_input.stop_recording()
             record_thread.join()
             out = user_input.get_output_text()
-            print('output of the speech: {0}'.format(out))
+            print('You: {0}'.format(out))
+            out_str = chat_client.send_message_to_chatGPT(out)
+            print('ChatGPT: {0}'.format(out_str))
             user_input.remove_input_sound_file()
         elif inp == 'c':
             message = input('What do you want to write to servant Arnold? : ')
