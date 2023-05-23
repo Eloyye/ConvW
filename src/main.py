@@ -1,21 +1,10 @@
-import openai
 import speech_to_text.InputUserVoice as iuv
-import os
 import threading
 
+from src.InitApi import init_openai_api, init_elevenlabs
 from src.chatgpt_client.ChatGPTClient import ChatGPTClient
-from elevenlabs import set_api_key
 
 from src.elevenlabs_client.ElevenLabsClient import ElevenLabsClient
-
-
-def init_openai_api():
-    with open('secret/OPENAI_API', 'r') as secret_file:
-        openai.api_key = secret_file.read()
-def init_elevenlabs():
-    with open('secret/ELEVENLABS_API', 'r') as elvn_file:
-        key = elvn_file.read()
-        set_api_key(key)
 
 
 if __name__ == '__main__':
